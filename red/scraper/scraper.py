@@ -31,8 +31,12 @@ class Scraper:
         stock_path = self.path + path
         if not os.path.isdir(stock_path):
             os.makedirs(stock_path)
+        try:
+            kospidak_df = pd.read_csv(self.path + "/stock_list.csv", encoding="cp949")
+        except FileNotFoundError:
+            print('"stock_list.csv" 파일을 찾을 수 없습니다. stock_list()를 먼저 실행해주세요.')
+            return
 
-        kospidak_df = pd.read_csv(self.path + "/stock_list.csv", encoding="cp949")
         for itemcode, itemname in tqdm(zip(kospidak_df["종목코드"], kospidak_df["종목명"])):
             itemcode = str(itemcode).zfill(6)
             stock_df = stock.get_history(itemcode, years)
@@ -46,7 +50,7 @@ class Scraper:
     def etf_list(self):
         """ETF 리스트를 스크래핑하여 저장합니다."""
         etf_df = etf.get_etf_list()
-        etf_df.to_csv(self.path + "/etf_list.csv", index=False, encoding="euc-kr")
+        etf_df.to_csv(self.path + "/etf_list.csv", index=False, encoding="cp949")
 
     def etf_history(self, years=10, path="/etf"):
         """각 종목별 과거 데이터를 스크래핑 및 저장합니다.
@@ -58,7 +62,12 @@ class Scraper:
         if not os.path.isdir(etf_path):
             os.makedirs(etf_path)
 
-        etf_list_df = pd.read_csv(self.path + "/etf_list.csv", encoding="euc-kr")
+        try:
+            etf_list_df = pd.read_csv(self.path + "/etf_list.csv", encoding="cp949")
+        except FileNotFoundError:
+            print('"etf_list.csv" 파일을 찾을 수 없습니다. etf_list()를 먼저 실행해주세요.')
+            return
+
         for itemcode, itemname in tqdm(
             zip(etf_list_df["itemcode"], etf_list_df["itemname"])
         ):
