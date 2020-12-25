@@ -46,7 +46,7 @@ class Scraper:
             itemcode = str(itemcode).zfill(6)
             stock_df = stock.get_history(itemcode, years)
             file_name = os.path.join(stock_path, "{}.csv".format(itemname))
-            stock_df.to_csv(file_name, encoding="cp949")
+            stock_df.to_csv(file_name, encoding="cp949", index=True)
 
         print("주식 데이터 스크래핑이 완료되었습니다.")
 
@@ -77,7 +77,7 @@ class Scraper:
             itemcode = str(itemcode).zfill(6)
             etf_df = stock.get_history(itemcode, years)
             file_name = os.path.join(etf_path, "{}.csv".format(itemname))
-            etf_df.to_csv(file_name, encoding="cp949")
+            etf_df.to_csv(file_name, encoding="cp949", index=True)
 
         print("ETF 데이터 스크래핑이 완료되었습니다.")
 

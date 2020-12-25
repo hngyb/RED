@@ -16,7 +16,7 @@ def get_etf_list():
 
     # etf 데이터프레임 정제
     # etfTabCode = {1: 국내 시장지수, 4: 해외 주식, 6: 채권}
-    etf_df = df[["itemcode", "etfTabCode", "itemname", "섹터"]]
+    etf_df = df[["itemcode", "etfTabCode", "itemname"]]
     etf_df = etf_df[etf_df["etfTabCode"].isin([1, 4, 6])]
 
     etf_df["etfTabCode"].loc[etf_df["etfTabCode"] == 1] = "국내시장지수"
