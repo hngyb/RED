@@ -10,6 +10,7 @@ class Indicator:
         self.df["ma20"] = self.df["close price"].rolling(window=20, min_periods=1).mean()
         self.df["ma60"] = self.df["close price"].rolling(window=60, min_periods=1).mean()
         self.df["ma120"] = self.df["close price"].rolling(window=120, min_periods=1).mean()
+        self.df["amount_ma5"] = self.df["amount"].rolling(window=5, min_periods=1).mean()
 
     def daily_return(self):
         """일수익률"""
