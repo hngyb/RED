@@ -336,6 +336,7 @@ class RED:
         print("데이터를 처리합니다.")
         time.sleep(1)
         self.preprocess_start()
+        print("데이터 처리가 완료되었습니다.")
 
     def clear_all(self, change):
         clear_output()  # "뒤로 가기" 클릭시 인터페이스 종료

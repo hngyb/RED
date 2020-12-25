@@ -79,7 +79,7 @@ class Scraper:
             file_name = os.path.join(etf_path, "{}.csv".format(itemname))
             etf_df.to_csv(file_name, encoding="cp949")
 
-        print("ETF 데이터 크롤링이 완료되었습니다.")
+        print("ETF 데이터 스크래핑이 완료되었습니다.")
 
     # def update_etf():
 
@@ -114,7 +114,7 @@ class Scraper:
         kospidak_df["영업이익률"] = ROE
         kospidak_df["PER"] = PER
         kospidak_df.to_csv(self.path + "/data/stock_list.csv", encoding="cp949")
-        print("재무제표 데이터 크롤링이 완료되었습니다.")
+        print("재무제표 데이터 스크래핑이 완료되었습니다.")
 
     def runAll(self):
         self.stock_list()
