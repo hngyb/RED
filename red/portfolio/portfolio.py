@@ -32,7 +32,7 @@ class Portfolio:
             stock_name = stock_lst[i][0]
             latest_price = self.get_latest_price("stock", stock_name)
             sell_price = latest_price * stock_lst[i][1][0]
-            buy_price = stock_lst[i][1][1] * stock_lst[i][1][0]
+            buy_price = stock_lst[i][1][1][0] * stock_lst[i][1][0]
             sell_price_lst.append(sell_price)
             buy_price_lst.append(buy_price)
 
@@ -44,7 +44,7 @@ class Portfolio:
             etf_name = etf_lst[i][0]
             latest_price = self.get_latest_price("etf", etf_name)
             sell_price = latest_price * etf_lst[i][1][0]
-            buy_price = etf_lst[i][1][1] * etf_lst[i][1][0]
+            buy_price = etf_lst[i][1][1][0] * etf_lst[i][1][0]
             sell_price_lst.append(sell_price)
             buy_price_lst.append(buy_price)
 
@@ -56,7 +56,7 @@ class Portfolio:
             bond_name = bond_lst[i][0]
             latest_price = self.get_latest_price("etf", bond_name)
             sell_price = latest_price * bond_lst[i][1][0]
-            buy_price = bond_lst[i][1][1] * bond_lst[i][1][0]
+            buy_price = bond_lst[i][1][1][0] * bond_lst[i][1][0]
             sell_price_lst.append(sell_price)
             buy_price_lst.append(buy_price)
 

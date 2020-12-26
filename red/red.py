@@ -145,12 +145,18 @@ class RED:
         real_r1 = int((r1 - r2) * 100)
         real_r2 = int(r2 * 100)
 
-        recommender = Recommender(self.path, self.stock_path, self.etf_path)
+        recommender = Recommender(self.path, self.stock_path, self.etf_path, self.user_info[5])
+        
+        recommender.cal_weight()
         rec_stock_lst = recommender.rec_stock()
+        df = pd.read_csv(self.path + "/data/stock_list2.csv", encoding = 'cp949')
+        names = [i[0] for i in rec_stock_lst]
+        a = list(df[df['종목명'].isin(names)][['종목명','가중치']].sort_values(by="가중치",ascending = False).종목명.values)
+        rec_stock_lst.sort(key=lambda x: a.index(x[0]))
+        
         res_etf1, res_etf2 = recommender.rec_etf()
-
         print("\n\n고객님의 포트폴리오입니다.\n")
-
+        
         주식리스트 = []
         채권리스트 = []
         일반리스트 = []
@@ -159,24 +165,24 @@ class RED:
         채권별금액리스트 = []
         일반별금액리스트 = []
 
-        portfolios1, penny1 = self.dist(capital, rec_stock_lst, 1 - (r1), 10)
+        self.portfolios1, penny1 = self.dist(capital, rec_stock_lst, 1 - (r1), 10)
         print("\n주식 종목 : {}원\n".format(capital * (1 - r1) - penny1))
-        for name, info in portfolios1.items():
-            print("{}, {}개 매입. {}일 후 매도 권장. 현재가: {}".format(name, info[0], info[2], info[1]))
+        for name, info in self.portfolios1.items():
+            print("{}, {}개 매입. {}일 후 매도 권장. 현재가: {}".format(name, info[0], info[1][1], info[1][0]))
             주식리스트.append(name)
             주식별금액리스트.append(info[1])
 
-        portfolios2, penny2 = self.dist(capital + penny1, res_etf1, r2, 5)
+        self.portfolios2, penny2 = self.dist(capital + penny1, res_etf1, r2, 5)
         print("\n채권 ETF 종목 : {}원\n".format((capital + penny1) * r2 - penny2))
-        for name, info in portfolios2.items():
-            print("{}, {}개 매입.기간 내 보유 권장. 현재가: {}".format(name, info[0], info[1]))
+        for name, info in self.portfolios2.items():
+            print("{}, {}개 매입.기간 내 보유 권장. 현재가: {}".format(name, info[0], info[1][0]))
             채권리스트.append(name)
             채권별금액리스트.append(info[1])
 
-        portfolios3, penny3 = self.dist(capital + penny2, res_etf2, r1 - r2, 5)
+        self.portfolios3, penny3 = self.dist(capital + penny2, res_etf2, r1 - r2, 5)
         print("\n일반 ETF 종목 : {}원\n".format((capital + penny2) * (r1 - r2) - penny3))
-        for name, info in portfolios3.items():
-            print("{}, {}개 매입. 20일 후 리밸런싱 권장. 현재가: {}".format(name, info[0], info[1]))
+        for name, info in self.portfolios3.items():
+            print("{}, {}개 매입. 20일 후 리밸런싱 권장. 현재가: {}".format(name, info[0], info[1][0]))
             일반리스트.append(name)
             채권별금액리스트.append(info[1])
 
@@ -195,7 +201,8 @@ class RED:
 
         fm.get_fontconfig_fonts()
         font_name = fm.FontProperties(fname=self.fontpath).get_name()
-        matplotlib.rc("font", family=font_name, size=20)
+        plt.rc("font", family= font_name, size=20)
+        
 
         fig = plt.figure(figsize=(7, 7))
         plt.bar(kindx, values, width=0.6, color=colors, edgecolor="lightgray")
@@ -303,9 +310,9 @@ class RED:
         display(im_tend)
 
         # 마무리
-        portfolios4 = dict(portfolios1, **portfolios2)
-        portfolios4.update(portfolios3)
-        return portfolios1, portfolios2, portfolios3
+        #portfolios4 = dict(portfolios1, **portfolios2)
+        #portfolios4.update(portfolios3)
+        return self.portfolios1,self.portfolios2,self.portfolios3
 
     def dist(self, capital, asset, pro, max_num):
         """자본 배분 알고리즘 (자본, 리스트, 비율, 최대종류)"""
@@ -320,7 +327,7 @@ class RED:
                     break
                 if limit >= amount + asset[i][1]:  # 최대금액 미만이라면
                     amount += asset[i][1]
-                    res.setdefault(asset[i][0], [0, asset[i][1], asset[i][2]])
+                    res.setdefault(asset[i][0], [0, asset[i][1:]])
                     res[asset[i][0]][0] += 1
                     more = True
 
@@ -336,7 +343,6 @@ class RED:
         print("데이터를 처리합니다.")
         time.sleep(1)
         self.preprocess_start()
-        print("데이터 처리가 완료되었습니다.")
 
     def clear_all(self, change):
         clear_output()  # "뒤로 가기" 클릭시 인터페이스 종료
@@ -359,36 +365,24 @@ class RED:
         scraper.runAll()
 
     def preprocess_start(self):
-        for i in tqdm(self.stock_data):
+        for i in tqdm(os.listdir(self.path + "/data/stock")):
             data_dir = self.path + "/data/stock/" + i
             stock_df = pd.read_csv(data_dir, index_col=0, encoding="cp949")
-            etf_preprocess = Indicator(stock_df)
-            etf_preprocess.runAll()
-            stock_df.to_csv(data_dir, encoding="cp949", index=False)
+            stock_preprocess = Indicator(stock_df)
+            stock_preprocess.runAll()
+            stock_df.to_csv(data_dir, encoding="cp949")
 
-        for i in tqdm(self.etf_data):
+        for i in tqdm(os.listdir(self.path + "/data/etf")):
             data_dir = self.path + "/data/etf/" + i
             etf_df = pd.read_csv(data_dir, index_col=0, encoding="cp949")
             etf_preprocess = Indicator(etf_df)
             etf_preprocess.runAll()
-            etf_df.to_csv(data_dir, encoding="cp949", index=False)
+            etf_df.to_csv(data_dir, encoding="cp949")
+        print("데이터 업데이트가 완료되었습니다.")
 
     term_list = ["1주 ~ 1개월", "1개월 ~ 6개월", "6개월 ~ 1년", "1년 이상"]
-    sector_list = [
-        "건설",
-        "게임",
-        "금융",
-        "레져/엔터",
-        "바이오",
-        "반도체",
-        "에너지/화학",
-        "원자재",
-        "인터넷",
-        "자동차",
-        "정보기술",
-        "헬스케어",
-        "기타",
-    ]
+    sector_list = ['건설','금융','기계','IT','운수창고','운수장비',
+                   '유통','의약','전기전자','철강금속','화학']
     know_list = [
         "금융투자상품에 투자해 본 경험이 없음",
         "널리 알려진 금융투자 상품(주식, 채권 및 펀드 등)의 구조 및 위험을 일정 부분 이해하고 있음",
@@ -459,10 +453,6 @@ class RED:
     user_buttons = [capital, term_dropdown, age, gender_dropdown, income, sector, know, risk]
 
     def disposition_viz(self):  # 투자 성향 시각화 및 정보확인
-        if (self.user_info[6] == self.know_list[0]) or (self.user_info[6] == self.know_list[1]):
-            danger = Image.open(self.path + "/red/interface/image/portfolio/위험고지.png")
-            display(danger)
-            print("\n\n\n")
 
         # 경로
         folder_path = ["age/age_", "period/", "sex/", "tend/"]
@@ -500,6 +490,10 @@ class RED:
 
     def portfolio_viz(self):
         self.to_home_button.on_click(self.RED_start)
+        
+        if (self.user_info[6] == self.know_list[0]) or (self.user_info[6] == self.know_list[1]):
+            danger = Image.open(self.path + "/red/interface/image/portfolio/위험고지.png")
+            display(danger)
 
         # 포트폴리오 비율
         capital = self.user_info[0] * 10000
@@ -525,8 +519,31 @@ class RED:
         real_r0 = int((1 - r1) * 100)
         real_r1 = int((r1 - r2) * 100)
         real_r2 = int(r2 * 100)
-        수익률 = int(6)
-        표준편차 = int(3)
+        
+    
+        p_profit = 0 ; p_sigma = 0; p_num = 0; p_ratio = 0;
+        for equity in (self.portfolios1, self.portfolios2, self.portfolios3):
+            p_num += 1
+            if p_num == 1:
+                p_ratio = 1-r1
+            elif p_num == 2:
+                p_ratio = r2
+            else:
+                p_ratio = r1-r2
+            cnt = 0 ; profit = 0; sigma = 0;
+            
+            for name, info in equity.items():
+                cnt += info[0]
+                profit += info[1][-2]*info[0]
+                sigma += info[1][-1]*info[0]
+            if cnt > 0 :
+                profit /= cnt; sigma /= cnt;
+                
+            p_profit += profit *  p_ratio 
+            p_sigma += sigma *  p_ratio
+
+        수익률 = round(((1+p_profit/100)**12-1)*100,2)
+        표준편차 = round(p_sigma*100,2)
 
         # 파이 차트 생성
         if r2 == 0:
