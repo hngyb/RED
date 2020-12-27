@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import ast
 
+
 class Recommender:
     def __init__(self, path, stock_path, etf_path, sector):
         self.path = path
@@ -41,35 +42,35 @@ class Recommender:
         lst2.sort(key=lambda x: x[1])
         lst1.sort(key=lambda x: x[2], reverse=True)
         lst2.sort(key=lambda x: x[2], reverse=True)
-        
+
         for y in lst2:
             if y[0] in sector_etfs:
                 lst2.remove(y)
-                lst2.insert(0, y) #맨 앞으로 이동 최우선 추출
+                lst2.insert(0, y)  # 맨 앞으로 이동 최우선 추출
                 break
-        
+
         return lst1[:20], lst2[:20]
-    
+
     def cal_weight(self):
-        self.df = pd.read_csv(self.path + "/data/stock_list.csv", index_col = 0, encoding = 'cp949')
+        self.df = pd.read_csv(self.path + "/data/stock_list.csv", index_col=0, encoding="cp949")
         for i in range(350):
-            if self.df.영업이익률[i] == '[]':
+            if self.df.영업이익률[i] == "[]":
                 self.df.영업이익률[i] = "['1','1']"
-            if self.df.PER[i] == '[]':
-                self.df.PER[i] = "['1','1']"
+            if self.df.PER[i] == "[]":
+                self.df.PER[i] = "['-1','-1']"
         self.가중치 = []
         self.df.영업이익률 = self.df.영업이익률.apply(ast.literal_eval)
         self.df.PER = self.df.PER.apply(ast.literal_eval)
         for i in range(350):
             self.df.영업이익률[i] = self.df.영업이익률[i][0]
             self.df.PER[i] = self.df.PER[i][0]
-            self.df.영업이익률[i] = self.df.영업이익률[i].replace(",","")
-            self.df.PER[i] = self.df.PER[i].replace(",","")
+            self.df.영업이익률[i] = self.df.영업이익률[i].replace(",", "")
+            self.df.PER[i] = self.df.PER[i].replace(",", "")
             self.df.PER[i] = float(self.df.PER[i])
             self.df.영업이익률[i] = float(self.df.영업이익률[i])
-            self.a = self.df.영업이익률[i]/100 + 1/(self.df.PER[i])
+            self.a = self.df.영업이익률[i] / 100 + 1 / (self.df.PER[i])
             self.가중치.append(self.a)
-        self.df['가중치'] = self.가중치
+        self.df["가중치"] = self.가중치
 
-        self.df.to_csv(self.path + "/data/stock_list2.csv", encoding = 'cp949')
+        self.df.to_csv(self.path + "/data/stock_list2.csv", encoding="cp949")
         return self.df

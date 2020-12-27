@@ -1,12 +1,14 @@
 import os
 import pandas as pd
 import ast
+from datetime import datetime
 
 
 class Portfolio:
     def __init__(self, path=os.getcwd()):
         self.user_path = path + "/data/users/userDB.csv"
         self.data_path = path + "/data"
+        self.latest_date = datetime.today()
         if not os.path.isfile(self.user_path):
             print('"userDB.csv"이 없습니다.')
             return
@@ -22,6 +24,8 @@ class Portfolio:
             self.bond_return(user, buy_price_lst, sell_price_lst)
             current_return = (sum(sell_price_lst) / sum(buy_price_lst) * 100 - 100).round(2)
             userDB.loc[index, "현재 수익률(%)"] = current_return
+            latest_date = datetime.strptime(str(self.latest_date), "%Y%m%d").strftime("%Y-%m-%d")
+            userDB.loc[index, "수익률 기준 날짜"] = latest_date
         userDB.to_csv(self.user_path, encoding="cp949")
 
     def stock_return(self, user, buy_price_lst, sell_price_lst):
@@ -65,4 +69,5 @@ class Portfolio:
         file_path = file_path + ".csv"
         df = pd.read_csv(file_path, encoding="cp949", index_col=0)
         latest_price = df.iloc[-1, :]["close price"]
+        self.latest_date = df.index[-1]
         return latest_price

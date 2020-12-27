@@ -46,8 +46,7 @@ class RED:
                     "투자 기간",
                     "나이",
                     "성별",
-                    "월",
-                    "정기 수입(만 원)",
+                    "월 정기 수입(만 원)",
                     "관심산업분야",
                     "금융지식수준",
                     "위험추구성향",
@@ -146,17 +145,25 @@ class RED:
         real_r2 = int(r2 * 100)
 
         recommender = Recommender(self.path, self.stock_path, self.etf_path, self.user_info[5])
-        
+
         recommender.cal_weight()
         rec_stock_lst = recommender.rec_stock()
-        df = pd.read_csv(self.path + "/data/stock_list2.csv", encoding = 'cp949')
+
+        df = pd.read_csv(self.path + "/data/stock_list2.csv", encoding="cp949")
         names = [i[0] for i in rec_stock_lst]
-        a = list(df[df['종목명'].isin(names)][['종목명','가중치']].sort_values(by="가중치",ascending = False).종목명.values)
+        a = list(
+            df[df["종목명"].isin(names)][["종목명", "가중치"]]
+            .sort_values(by="가중치", ascending=False)
+            .종목명.values
+        )
         rec_stock_lst.sort(key=lambda x: a.index(x[0]))
-        
+        # print(rec_stock_lst)
+
+        # 중복의 경우 처리필요
+
         res_etf1, res_etf2 = recommender.rec_etf()
         print("\n\n고객님의 포트폴리오입니다.\n")
-        
+
         주식리스트 = []
         채권리스트 = []
         일반리스트 = []
@@ -168,7 +175,7 @@ class RED:
         self.portfolios1, penny1 = self.dist(capital, rec_stock_lst, 1 - (r1), 10)
         print("\n주식 종목 : {}원\n".format(capital * (1 - r1) - penny1))
         for name, info in self.portfolios1.items():
-            print("{}, {}개 매입. {}일 후 매도 권장. 현재가: {}".format(name, info[0], info[1][1], info[1][0]))
+            print("{}, {}개 매입. {} 전략. 현재가: {}".format(name, info[0], info[1][1], info[1][0]))
             주식리스트.append(name)
             주식별금액리스트.append(info[1])
 
@@ -201,8 +208,7 @@ class RED:
 
         fm.get_fontconfig_fonts()
         font_name = fm.FontProperties(fname=self.fontpath).get_name()
-        plt.rc("font", family= font_name, size=20)
-        
+        plt.rc("font", family=font_name, size=20)
 
         fig = plt.figure(figsize=(7, 7))
         plt.bar(kindx, values, width=0.6, color=colors, edgecolor="lightgray")
@@ -222,87 +228,294 @@ class RED:
         draw = ImageDraw.Draw(im_tend)
 
         if real_r0 == 80:  # 80 : 20 : 00
-            draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
-            draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
-            draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
-            draw.text((635, 253), str(주식리스트[3]), font=font, fill=(b, g, r, a))
-            draw.text((635, 297.333), str(주식리스트[4]), font=font, fill=(b, g, r, a))
-            draw.text((635, 341.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-            draw.text((635, 386), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-            draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((635, 253), str(주식리스트[3]), font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((635, 297.333), str(주식리스트[4]), font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((635, 341.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((635, 386), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+            try:
+                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+            except:
+                draw.text((0, 0), "", font=font, fill=(b, g, r, a))
         elif real_r0 == 60:  # 60 : 30 : 10
             if real_r2 == 0:
-                draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(주식리스트[3]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 341.666), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 386), str(일반리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(주식리스트[3]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 341.666), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 386), str(일반리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
             else:
-                draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(주식리스트[3]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(채권리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 341.666), str(채권리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 386), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(주식리스트[3]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(채권리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 341.666), str(채권리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 386), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
         elif real_r0 == 40:  # 40 : 30 : 30
             if real_r2 == 0:
-                draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 341.666), str(일반리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 386), str(일반리스트[3]), font=font, fill=(b, g, r, a))
-                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 341.666), str(일반리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 386), str(일반리스트[3]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
             else:
-                draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(채권리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(채권리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 341.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 386), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(주식리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(채권리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(채권리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 341.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 386), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
         elif real_r0 == 19:  # 19 : 40 : 40
             if real_r2 == 0:
-                draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(일반리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 341.666), str(일반리스트[3]), font=font, fill=(b, g, r, a))
-                draw.text((635, 386), str(일반리스트[4]), font=font, fill=(b, g, r, a))
-                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(일반리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 341.666), str(일반리스트[3]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 386), str(일반리스트[4]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
             else:
-                draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(채권리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(채권리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(채권리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 341.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 386), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(주식리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(주식리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(채권리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(채권리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(채권리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 341.666), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 386), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
         elif real_r0 == 0:  # 0 : 33 : 67
             if real_r2 == 0:
-                draw.text((635, 120), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(일반리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(일반리스트[3]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(일반리스트[4]), font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(일반리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(일반리스트[3]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(일반리스트[4]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
             else:
-                draw.text((635, 120), str(채권리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 164.333), str(채권리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 208.666), str(채권리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 253), str(일반리스트[0]), font=font, fill=(b, g, r, a))
-                draw.text((635, 297.333), str(일반리스트[1]), font=font, fill=(b, g, r, a))
-                draw.text((635, 341.666), str(일반리스트[2]), font=font, fill=(b, g, r, a))
-                draw.text((635, 386), str(일반리스트[3]), font=font, fill=(b, g, r, a))
-                draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 120), str(채권리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 164.333), str(채권리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 208.666), str(채권리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 253), str(일반리스트[0]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 297.333), str(일반리스트[1]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 341.666), str(일반리스트[2]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((635, 386), str(일반리스트[3]), font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
+                try:
+                    draw.text((805, 430.333), "···", font=font, fill=(b, g, r, a))
+                except:
+                    draw.text((0, 0), "", font=font, fill=(b, g, r, a))
 
         # 이미지에 파이차트 삽입
         im_tend.paste(im_chart, (30, 10))
@@ -310,9 +523,9 @@ class RED:
         display(im_tend)
 
         # 마무리
-        #portfolios4 = dict(portfolios1, **portfolios2)
-        #portfolios4.update(portfolios3)
-        return self.portfolios1,self.portfolios2,self.portfolios3
+        # portfolios4 = dict(portfolios1, **portfolios2)
+        # portfolios4.update(portfolios3)
+        return self.portfolios1, self.portfolios2, self.portfolios3
 
     def dist(self, capital, asset, pro, max_num):
         """자본 배분 알고리즘 (자본, 리스트, 비율, 최대종류)"""
@@ -381,8 +594,21 @@ class RED:
         print("데이터 업데이트가 완료되었습니다.")
 
     term_list = ["1주 ~ 1개월", "1개월 ~ 6개월", "6개월 ~ 1년", "1년 이상"]
-    sector_list = ['건설','금융','기계','IT','운수창고','운수장비',
-                   '유통','의약','전기전자','철강금속','화학']
+    sector_list = [
+        "건설",
+        "금융",
+        "기계",
+        "IT",
+        "운수창고",
+        "운수장비",
+        "유통",
+        "의약",
+        "전기전자",
+        "철강금속",
+        "화학",
+        "통신",
+        "상관없음",
+    ]
     know_list = [
         "금융투자상품에 투자해 본 경험이 없음",
         "널리 알려진 금융투자 상품(주식, 채권 및 펀드 등)의 구조 및 위험을 일정 부분 이해하고 있음",
@@ -490,10 +716,23 @@ class RED:
 
     def portfolio_viz(self):
         self.to_home_button.on_click(self.RED_start)
-        
+
         if (self.user_info[6] == self.know_list[0]) or (self.user_info[6] == self.know_list[1]):
             danger = Image.open(self.path + "/red/interface/image/portfolio/위험고지.png")
             display(danger)
+
+        # 관심 산업 상관관계 보여주기
+        if self.user_info[5] == self.sector_list[0]:
+            s1 = Image.open(self.path + "/red/interface/image/industry/건설양.png")
+            s2 = Image.open(self.path + "/red/interface/image/industry/건설음.png")
+            display(s1)
+            display(s2)
+        elif self.user_info[5] == self.sector_list[5]:
+            s3 = Image.open(self.path + "/red/interface/image/industry/운수장비음.png")
+            display(s3)
+        elif self.user_info[5] == self.sector_list[7]:
+            s4 = Image.open(self.path + "/red/interface/image/industry/의약음.png")
+            display(s4)
 
         # 포트폴리오 비율
         capital = self.user_info[0] * 10000
@@ -519,31 +758,36 @@ class RED:
         real_r0 = int((1 - r1) * 100)
         real_r1 = int((r1 - r2) * 100)
         real_r2 = int(r2 * 100)
-        
-    
-        p_profit = 0 ; p_sigma = 0; p_num = 0; p_ratio = 0;
+
+        p_profit = 0
+        p_sigma = 0
+        p_num = 0
+        p_ratio = 0
         for equity in (self.portfolios1, self.portfolios2, self.portfolios3):
             p_num += 1
             if p_num == 1:
-                p_ratio = 1-r1
+                p_ratio = 1 - r1
             elif p_num == 2:
                 p_ratio = r2
             else:
-                p_ratio = r1-r2
-            cnt = 0 ; profit = 0; sigma = 0;
-            
+                p_ratio = r1 - r2
+            cnt = 0
+            profit = 0
+            sigma = 0
+
             for name, info in equity.items():
                 cnt += info[0]
-                profit += info[1][-2]*info[0]
-                sigma += info[1][-1]*info[0]
-            if cnt > 0 :
-                profit /= cnt; sigma /= cnt;
-                
-            p_profit += profit *  p_ratio 
-            p_sigma += sigma *  p_ratio
+                profit += info[1][-2] * info[0]
+                sigma += info[1][-1] * info[0]
+            if cnt > 0:
+                profit /= cnt
+                sigma /= cnt
 
-        수익률 = round(((1+p_profit/100)**12-1)*100,2)
-        표준편차 = round(p_sigma*100,2)
+            p_profit += profit * p_ratio
+            p_sigma += sigma * p_ratio
+
+        수익률 = round(((1 + p_profit / 100) ** 12 - 1) * 100, 2)
+        표준편차 = round(p_sigma * 100, 2)
 
         # 파이 차트 생성
         if r2 == 0:
@@ -613,9 +857,9 @@ class RED:
 
         # 이미지에 텍스트 삽입
         draw = ImageDraw.Draw(im_tend)
-        draw.text((234, 80.5), "연 " + str(수익률) + "% 내외 추구", font=font, fill=(b, g, r, a))
+        draw.text((228, 80.5), "연 " + str(수익률) + "% 내외 추구", font=font, fill=(b, g, r, a))
         draw.text((228, 244), "평균 위험률 연 " + str(표준편차) + "%", font=font, fill=(b, g, r, a))
-        draw.text((210, 405), "전체 주식 비중 " + str(real_r0) + "% 수준", font=font, fill=(b, g, r, a))
+        draw.text((228, 405), "전체 주식 비중 " + str(real_r0) + "% 수준", font=font, fill=(b, g, r, a))
 
         # 이미지에 파이차트 삽입
         im_tend.paste(im_chart, (510, 10))
