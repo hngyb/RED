@@ -11,4 +11,4 @@
 5. **포트폴리오**: 주식과 ETF에 분배된 포트폴리오 제공. 산업분석 서비스 및 고객정보 반영
 6. **사용자DB**: 사용자 정보 저자 및 지속적 관리. 이후 피드백과 수익류 추적 가능
 ## Project Structure
-![project structure(https://user-images.githubusercontent.com/68726615/116689989-bbedc100-a9f3-11eb-95c0-b338aea6c7c1.png)
+![project structure](https://user-images.githubusercontent.com/68726615/116689989-bbedc100-a9f3-11eb-95c0-b338aea6c7c1.png)
